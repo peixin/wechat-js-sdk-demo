@@ -5,6 +5,7 @@ interface JSONType {
 }
 
 type Platform = "wecom" | "wechat";
+type PlatformAction = "getLocation" | "scanQRCode";
 
 type WXOption = { [P in JSONType]: JSONType[P] | WXOptionCallback };
 
@@ -12,7 +13,7 @@ interface SignatureData {
   corpId: string;
   agentId: string;
   signature: string;
-  cropSignature: string;
+  configSignature: string;
   nonceStr: string;
   timestamp: string;
 }

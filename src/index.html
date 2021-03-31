@@ -14,7 +14,7 @@
     new VConsole();
     window.fetch = fetch;
 
-    
+
     function addScript(src, callback) {
       var scriptTag = document.createElement('script');
       scriptTag.onload = callback;
@@ -22,36 +22,69 @@
       document.head.appendChild(scriptTag);
     }
 
-    if (window.navigator.userAgent.search("wxwork") !== -1) {
+    var platform = window.navigator.userAgent.indexOf("wxwork") !== -1 ? "wecom" : "wechat";
+
+    if (platform === "wecom") {
       console.log("platform wecom");
-      addScript("https://res.wx.qq.com/wwopen/js/jsapi/jweixin-1.0.0.js");
+      addScript("https://open.work.weixin.qq.com/wwopen/js/jwxwork-1.0.0.js");
     } else {
-      console.log("platform wechat");
+      console.log("platform wechat")
       addScript("https://res.wx.qq.com/open/js/jweixin-1.6.0.js");
     }
   </script>
-  <script src="./main.js"></script>
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      display: flex;
+    }
+
+    html {
       width: 100vw;
       height: 100vh;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      height: calc(100% - 32px);
+      overflow: hidden;
+      display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
     }
 
-    button {
-      margin-bottom: 20px;
+    .buttons {
+      width: 100%;
+      height: 40%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    #result {
+      width: 100%;
+      flex: 1;
+      border-top: 1px #8183ff solid;
+      padding-top: 16px;
+      overflow: visible;
+      word-wrap: break-word;
+      word-break: break-all;
     }
   </style>
 </head>
 
 <body>
-  <button onclick="scanIt('wecom')">企业微信扫一扫</button>
-  <button onclick="scanIt('wechat')">微信公众号扫一扫</button>
+  <div class="buttons">
+    <button onclick="doAction('wecom', 'scanQRCode')">企业微信 - scanQRCode</button>
+    <button onclick="doAction('wechat', 'scanQRCode')">微信公众号 - scanQRCode</button>
+    <button onclick="doAction('wecom', 'getLocation')">企业微信 - getLocation</button>
+    <button onclick="doAction('wechat', 'getLocation')">微信公众号 - getLocation</button>
+  </div>
+
+  <div id="result"></div>
+  <script src="./main.js"></script>
 </body>
 
 </html>

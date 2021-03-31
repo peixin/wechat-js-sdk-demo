@@ -1,7 +1,8 @@
 (function () {
-  const JS_API_LIST = ["scanQRCode"];
+  const JS_API_LIST = ["chooseImage", "scanQRCode"];
   const SIGNATURE_HOST = "https://example.com";
   const WECOM_FLAG = "wxwork";
+  const resultDom = document.getElementById("result") as HTMLElement;
 
   const utils = {
     isWecom: () => window.navigator.userAgent.search(WECOM_FLAG) !== -1,
@@ -12,28 +13,12 @@
         url = url + "?url=" + encodeURIComponent(location.split("#")[0]);
         const response = await fetch(url);
         const text = await response.text();
-        return JSON.parse(text) as SignatureData;
+        const data = JSON.parse(text) as SignatureData;
+        console.log("SignatureData:", data);
+        return data;
       } catch {
         return {} as SignatureData;
       }
-    },
-
-    wxScanQRCode: () => {
-      console.log("wx.scanQRCode");
-      window.wx.scanQRCode({
-        desc: "scanQRCode desc",
-        needResult: 0,
-        scanType: ["qrCode", "barCode"],
-        success: function (res: JSONType) {
-          console.log("scan result", res);
-        },
-        error: function (res: JSONType) {
-          console.error("scan error", res);
-        },
-        fail: function (res: JSONType) {
-          console.error("scan fail", res);
-        },
-      });
     },
 
     getConfigOption: (appId: string, timestamp: string, nonceStr: string, signature: string) => {
@@ -69,12 +54,54 @@
         fail,
       };
     },
+
+    showResult: (result: string, res: JSONType) => {
+      resultDom.innerText = result + "\n" + JSON.stringify(res);
+    },
+
+    wxAPICommonOptions: (apiName: string, option: JSONType) => {
+      return Object.assign(option, {
+        success: function (res: JSONType) {
+          console.log(`${apiName} result:`, res);
+          utils.showResult(`${apiName} result:`, res);
+        },
+        error: function (res: JSONType) {
+          console.error(`${apiName} error:`, res);
+          utils.showResult(`${apiName} error:`, res);
+        },
+        fail: function (res: JSONType) {
+          console.error(`${apiName} fail:`, res);
+          utils.showResult(`${apiName} error:`, res);
+        },
+      });
+    },
   };
 
-  const runWecomScan = async () => {
+  const WxAPI = {
+    scanQRCode: () => {
+      console.log("wx.scanQRCode");
+      window.wx.scanQRCode(
+        utils.wxAPICommonOptions("scanQRCode", {
+          desc: "scanQRCode desc",
+          needResult: 1,
+          scanType: ["qrCode", "barCode"],
+        }),
+      );
+    },
+
+    getLocation: () => {
+      window.wx.getLocation(
+        utils.wxAPICommonOptions("getLocation", {
+          type: "wgs84",
+        }),
+      );
+    },
+  };
+
+  const runWecomAction = async (action: PlatformAction) => {
     const signatureUrl = `${SIGNATURE_HOST}/wecom/signature`;
 
-    const { signature, cropSignature, nonceStr, timestamp, agentId, corpId } = await utils.getSignature(
+    const { signature, configSignature, nonceStr, timestamp, agentId, corpId } = await utils.getSignature(
       signatureUrl,
       location.href,
     );
@@ -86,7 +113,7 @@
 
     console.log("wecom config start");
 
-    const configOption = utils.getConfigOption(corpId, timestamp, nonceStr, cropSignature);
+    const configOption = utils.getConfigOption(corpId, timestamp, nonceStr, configSignature);
 
     const agentConfigOption = utils.getAgentConfigOption(
       corpId,
@@ -96,7 +123,7 @@
       signature,
       (res: JSONType) => {
         console.log("agentConfig success", res);
-        utils.wxScanQRCode();
+        WxAPI[action]();
       },
       (res: JSONType) => {
         console.error("agentConfig error", res);
@@ -112,7 +139,7 @@
       if (utils.isWecom()) {
         window.wx.agentConfig(agentConfigOption);
       } else {
-        utils.wxScanQRCode();
+        WxAPI[action]();
       }
     });
 
@@ -121,7 +148,7 @@
     });
   };
 
-  const runWechatScan = async () => {
+  const runWechatAction = async (action: PlatformAction) => {
     const signatureUrl = `${SIGNATURE_HOST}/wechat/signature`;
 
     const { signature, nonceStr, timestamp, corpId } = await utils.getSignature(signatureUrl, location.href);
@@ -140,7 +167,7 @@
 
     window.wx.ready(() => {
       console.log("wechat config ready");
-      utils.wxScanQRCode();
+      WxAPI[action]();
     });
 
     window.wx.error((res: JSONType) => {
@@ -148,12 +175,12 @@
     });
   };
 
-  window.scanIt = (platform: Platform) => {
-    console.log("scan it", platform);
+  window.doAction = (platform: Platform, action: PlatformAction) => {
+    console.log("click button", platform);
     if (platform === "wechat") {
-      runWechatScan();
+      runWechatAction(action);
     } else {
-      runWecomScan();
+      runWecomAction(action);
     }
   };
 })();
