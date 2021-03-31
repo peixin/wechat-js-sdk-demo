@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WeCom Scan QR Code</title>
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/gh/Tencent/vConsole@3.4.0/dist/vconsole.min.js"></script>
+  <script>
+    const fetch = window.fetch;
+    new VConsole();
+    window.fetch = fetch;
+
+    
+    function addScript(src, callback) {
+      var scriptTag = document.createElement('script');
+      scriptTag.onload = callback;
+      scriptTag.setAttribute('src', src);
+      document.head.appendChild(scriptTag);
+    }
+
+    if (window.navigator.userAgent.search("wxwork") !== -1) {
+      console.log("platform wecom");
+      addScript("https://res.wx.qq.com/wwopen/js/jsapi/jweixin-1.0.0.js");
+    } else {
+      console.log("platform wechat");
+      addScript("https://res.wx.qq.com/open/js/jweixin-1.6.0.js");
+    }
+  </script>
+  <script src="./main.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    button {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <button onclick="scanIt('wecom')">企业微信扫一扫</button>
+  <button onclick="scanIt('wechat')">微信公众号扫一扫</button>
+</body>
+
+</html>

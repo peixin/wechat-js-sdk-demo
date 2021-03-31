@@ -1,0 +1,30 @@
+{
+  "name": "wechat-js-sdk-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:peixin/wechat-js-sdk-demo.git",
+  "author": "liupeixin <fengyi.mail@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "tsc -p ./tsconfig.json --noEmit && eslint src --fix --ext .ts,.js",
+    "build": "rm -rf ./dist && tsc",
+    "publish": "bash build/publish.js"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "eslint": "^7.23.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "husky": "^6.0.0",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.3"
+  },
+  "lint-staged": {
+    "*.{js,ts,json,html}": [
+      "yarn lint"
+    ]
+  }
+}
