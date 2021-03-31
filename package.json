@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "tsc -p ./tsconfig.json --noEmit && eslint src --fix --ext .ts,.js",
     "build": "rm -rf ./dist && tsc && cp dist/main.js src/index.html www",
-    "publish": "bash build/publish.js"
+    "publish": "bash build/publish.js",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
